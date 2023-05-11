@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import bcrypt
 from flask_sqlalchemy import SQLAlchemy
 
@@ -49,4 +50,12 @@ user_project = db.Table('user_project',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
     db.Column('project_id', db.Integer, db.ForeignKey('project.id'), primary_key=True)
 )
+@dataclass
+class TaskDTO:
+    id: int
+    name: str
+    description: str
+    complete: bool
+    project_id: int
+
 

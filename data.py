@@ -1,4 +1,5 @@
-from models import db, User, Project, Task
+from models import TaskDTO, db, User, Project, Task
+from session_context import transactional_session
 
 
 # https://flask-sqlalchemy.palletsprojects.com/en/3.0.x/queries/
@@ -44,11 +45,11 @@ def find_task_by_id(task_id):
     return task
 
 
-def task_complete_invert(id):
+""" def task_complete_invert(id):
     task = find_task_by_id(id)
     task.complete = not task.complete
     db.session.commit()
-    return task
+    return task """
 
 # def change_task(task, **props):
 #     for key in props.keys():
@@ -56,6 +57,17 @@ def task_complete_invert(id):
 
 #     db.session.commit()
 
+def task_complete_invert(id):
+    project_id = 0
+    with transactional_session() as session:
+        task = find_task_by_id_with_session(session, id)
+        task.complete = not task.complete
+        return TaskDTO(task.id, task.name, task.description, task.complete, task.project_id)
+
+def find_task_by_id_with_session(session, task_id):
+    task = session.execute(
+        db.select(Task).filter_by(id=task_id)).scalar_one()
+    return task
 
 def delete_task(task):
     db.session.delete(task)
